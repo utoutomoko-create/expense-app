@@ -302,6 +302,18 @@ window.handleFile = async function(e) {
   const file = e.target.files[0];
   if (!file) return;
   const isPdf = file.type === 'application/pdf';
+
+  // フォームと補足音声をリセット
+  document.getElementById('f-date').value = '';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-store').value = '';
+  document.getElementById('f-cat').value = '🍽️ 食費';
+  document.getElementById('f-memo').value = '';
+  document.getElementById('supplement-transcript').textContent = '「田中部長との接待」など補足を話してください';
+  document.getElementById('supplement-transcript').style.color = '#aaa';
+  document.getElementById('supplement-analyze-btn').style.display = 'none';
+  currentImageBase64 = null;
+
   document.getElementById('preview-area').style.display = 'block';
   document.getElementById('result-card').classList.remove('show');
   document.getElementById('success-receipt').style.display = 'none';

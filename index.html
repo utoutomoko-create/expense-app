@@ -136,9 +136,26 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
             <option>📦 物品</option><option>🎉 接待</option><option>📄 その他</option>
           </select>
         </div>
-        <div class="field"><label>メモ</label><input type="text" id="f-memo" placeholder="任意"></div>
+        <div class="field">
+          <label style="display:flex;align-items:center;justify-content:space-between;">
+            メモ
+            <button id="memo-mic-btn" onclick="toggleMemoVoice()" style="border:none;background:none;cursor:pointer;padding:2px;display:flex;align-items:center;gap:3px;font-size:11px;color:#666;">
+              <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg>
+              音声入力
+            </button>
+          </label>
+          <input type="text" id="f-memo" placeholder="任意">
+        </div>
       </div>
-      <button class="btn btn-primary btn-full" style="margin-top:8px;" onclick="addExpense('receipt')">
+      <div id="voice-supplement-area" style="margin-top:10px;padding:10px;background:#f9f9f9;border-radius:8px;border:1px solid #e8e8e8;">
+        <div style="font-size:12px;color:#666;margin-bottom:8px;">写真＋音声で再解析</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="supplement-mic-btn" onclick="toggleSupplementVoice()" class="btn" style="padding:7px 12px;font-size:13px;flex-shrink:0;">話す</button>
+          <div id="supplement-transcript" style="flex:1;font-size:13px;color:#aaa;min-height:32px;padding:6px 8px;background:#fff;border:1px solid #e0e0e0;border-radius:7px;">「田中部長との接待」など補足を話してください</div>
+          <button id="supplement-analyze-btn" onclick="analyzeWithVoice()" class="btn btn-primary" style="display:none;padding:7px 12px;font-size:13px;flex-shrink:0;">再解析</button>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="addExpense('receipt')">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> 経費として登録
       </button>
     </div>
@@ -213,6 +230,8 @@ const catColors = {
 let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
 let recognition = null;
 let isRecording = false;
+let currentImageBase64 = null;
+let currentImageType = 'image/jpeg';
 
 function saveExpenses() { localStorage.setItem('expenses', JSON.stringify(expenses)); }
 
@@ -261,7 +280,16 @@ async function handleFile(e) {
   loading.style.display = 'flex';
 
   const today = new Date().toISOString().split('T')[0];
-  const prompt = `このレシート・領収書・請求書から抽出してJSONのみで返答:\n{"date":"YYYY-MM-DD(不明なら${today})","amount":"¥数字","store":"店名または会社名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}`;
+  const prompt = `あなたは経費精算の専門家です。添付の書類を注意深く読み取り、以下のJSONのみを返答してください。説明文やマークダウンは不要です。
+
+抽出ルール：
+- date: 書類に記載された発行日・取引日・領収日を必ず読み取ること。日付の記載が全くない場合のみ"${today}"を使用すること。和暦（令和・R・平成・H）は西暦に変換すること。
+- amount: 合計金額・請求金額・領収金額を読み取ること。税込金額がある場合は税込を優先すること。"¥数字"形式（カンマなし）で返すこと。
+- store: 店名・会社名・屋号を正確に読み取ること。
+- category: 内容から最適なものを選択（食費/交通費/宿泊/物品/接待/その他）。
+- memo: 品目や用途など補足情報があれば簡潔に記載、なければ空文字。
+
+{"date":"YYYY-MM-DD","amount":"¥数字","store":"店名または会社名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}`;
 
   let messageContent;
 
@@ -301,6 +329,8 @@ async function handleFile(e) {
     document.getElementById('preview-img').style.display = 'block';
     document.getElementById('preview-canvas').style.display = 'none';
     document.getElementById('preview-pdf-label').style.display = 'none';
+    currentImageBase64 = base64;
+    currentImageType = 'image/jpeg';
     messageContent = [
       { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
       { type: 'text', text: prompt }
@@ -355,6 +385,103 @@ function showSuccess(id) {
   const el = document.getElementById(id);
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 2000);
+}
+
+
+function startSpeechRecognition(onResult, onEnd) {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('音声認識はChromeでのみ対応しています。'); return null;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new SR();
+  rec.lang = 'ja-JP';
+  rec.continuous = false;
+  rec.interimResults = true;
+  rec.onresult = (e) => onResult(Array.from(e.results).map(r => r[0].transcript).join(''));
+  rec.onend = () => onEnd();
+  rec.onerror = () => onEnd();
+  rec.start();
+  return rec;
+}
+
+function toggleMemoVoice() {
+  const btn = document.getElementById('memo-mic-btn');
+  const input = document.getElementById('f-memo');
+  btn.style.color = '#dc3545';
+  btn.textContent = '録音中...';
+  startSpeechRecognition(
+    (text) => { input.value = text; },
+    () => { btn.style.color = '#666'; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg> 音声入力'; }
+  );
+}
+
+let supplementRecognition = null;
+let isSupplementRecording = false;
+
+function toggleSupplementVoice() {
+  if (isSupplementRecording) { supplementRecognition && supplementRecognition.stop(); return; }
+  const btn = document.getElementById('supplement-mic-btn');
+  const transcript = document.getElementById('supplement-transcript');
+  const analyzeBtn = document.getElementById('supplement-analyze-btn');
+  btn.textContent = '停止';
+  btn.style.background = '#fff0f0';
+  btn.style.color = '#dc3545';
+  transcript.style.color = '#1a1a1a';
+  isSupplementRecording = true;
+  supplementRecognition = startSpeechRecognition(
+    (text) => { transcript.textContent = text; },
+    () => {
+      isSupplementRecording = false;
+      btn.textContent = '話す';
+      btn.style.background = '';
+      btn.style.color = '';
+      if (transcript.textContent && transcript.textContent.length > 1) {
+        analyzeBtn.style.display = 'block';
+      }
+    }
+  );
+}
+
+async function analyzeWithVoice() {
+  if (!currentImageBase64) return;
+  const voiceText = document.getElementById('supplement-transcript').textContent;
+  const loading = document.getElementById('loading-receipt');
+  loading.style.display = 'flex';
+  document.getElementById('supplement-analyze-btn').style.display = 'none';
+  const today = new Date().toISOString().split('T')[0];
+  const prompt = `あなたは経費精算の専門家です。添付の書類と以下の音声補足情報を組み合わせて読み取り、JSONのみを返答してください。
+
+音声補足：「${voiceText}」
+
+抽出ルール：
+- date: 書類に記載された発行日・取引日・領収日を必ず読み取ること。全く記載がない場合のみ"${today}"を使用。和暦は西暦に変換。
+- amount: 税込合計金額を優先。"¥数字"形式で返すこと。
+- store: 店名・会社名を正確に読み取ること。
+- category: 音声補足も考慮して最適なものを選択（食費/交通費/宿泊/物品/接待/その他）
+- memo: 音声補足の内容を優先してメモに反映すること。
+
+{"date":"YYYY-MM-DD","amount":"¥数字","store":"店名または会社名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}`;
+
+  const data = await callClaude([{
+    role: 'user',
+    content: [
+      { type: 'image', source: { type: 'base64', media_type: currentImageType, data: currentImageBase64 } },
+      { type: 'text', text: prompt }
+    ]
+  }]);
+  loading.style.display = 'none';
+  try {
+    const text = data.content.map(b => b.text || '').join('');
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    document.getElementById('f-date').value = parsed.date || today;
+    document.getElementById('f-amount').value = parsed.amount || '';
+    document.getElementById('f-store').value = parsed.store || '';
+    const catMap = {'食費':'🍽️ 食費','交通費':'🚃 交通費','宿泊':'🏨 宿泊','物品':'📦 物品','接待':'🎉 接待','その他':'📄 その他'};
+    document.getElementById('f-cat').value = catMap[parsed.category] || '📄 その他';
+    document.getElementById('f-memo').value = parsed.memo || '';
+  } catch(e) {}
+  document.getElementById('supplement-transcript').textContent = '「田中部長との接待」など補足を話してください';
+  document.getElementById('supplement-transcript').style.color = '#aaa';
 }
 
 function toggleVoice() {

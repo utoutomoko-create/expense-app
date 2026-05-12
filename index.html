@@ -389,6 +389,8 @@ window.handleFile = async function(e) {
   document.getElementById('result-card').classList.add('show');
 };
 
+const GAS_URL = 'https://script.google.com/macros/s/AKfycby6IH87IVpoGaDsmeYZBkhfovm4YhAKHpqYoBHsBRqyx5PgjMP_nX12ZIuzfH9D1AhHUQ/exec';
+
 window.addExpense = async function() {
   const exp = {
     id: Date.now(),
@@ -398,7 +400,18 @@ window.addExpense = async function() {
     cat: document.getElementById('f-cat').value,
     memo: document.getElementById('f-memo').value
   };
-  await push(expensesRef, exp);
+
+  // FirebaseとGoogleスプレッドシートに同時保存
+  await Promise.all([
+    push(expensesRef, exp),
+    fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(exp)
+    }).catch(() => {})
+  ]);
+
   document.getElementById('result-card').classList.remove('show');
   document.getElementById('preview-area').style.display = 'none';
   document.getElementById('file-input').value = '';

@@ -93,7 +93,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('receipt')">レシート読取</button>
-    <button class="tab" onclick="switchTab('voice')">音声入力</button>
     <button class="tab" onclick="switchTab('list')">経費一覧<span id="badge"></span></button>
   </div>
 
@@ -137,13 +136,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
           </select>
         </div>
         <div class="field">
-          <label style="display:flex;align-items:center;justify-content:space-between;">
-            メモ
-            <button id="memo-mic-btn" onclick="toggleMemoVoice()" style="border:none;background:none;cursor:pointer;padding:2px;display:flex;align-items:center;gap:3px;font-size:11px;color:#666;">
-              <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <label style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;">メモ</label>
+            <button id="memo-mic-btn" onclick="toggleMemoVoice()" style="border:1px solid #e0e0e0;background:#fafafa;border-radius:6px;cursor:pointer;padding:3px 7px;display:flex;align-items:center;gap:3px;font-size:11px;color:#666;font-family:inherit;">
+              <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg>
               音声入力
             </button>
-          </label>
+          </div>
           <input type="text" id="f-memo" placeholder="任意">
         </div>
       </div>
@@ -161,46 +160,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
     </div>
   </div>
 
-  <!-- 音声タブ -->
-  <div id="panel-voice" class="panel">
-    <div class="voice-section">
-      <button class="mic-btn" id="mic-btn" onclick="toggleVoice()">
-        <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
-      </button>
-      <p class="voice-status" id="voice-status">マイクを押して話す</p>
-      <div class="voice-transcript" id="voice-transcript" style="color:#aaa;">「昨日、新橋の居酒屋で接待費3500円」のように話してください</div>
-      <button class="btn btn-primary" id="voice-parse-btn" style="display:none;margin:0 auto 1rem;" onclick="parseVoice()">
-        <svg viewBox="0 0 24 24"><path d="M9 14l2 2 4-4"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg> AIで解析して登録
-      </button>
-      <p class="voice-hint">日本語音声認識対応 ／ Chrome推奨</p>
-    </div>
-    <div class="loading" id="loading-voice" style="display:none;">
-      <div class="spinner"></div> 解析中...
-    </div>
-    <div class="success-msg" id="success-voice">✓ 経費を登録しました</div>
-    <div class="card" id="voice-result-card">
-      <div class="card-title">音声解析結果 <span class="ai-badge">Claude AI</span></div>
-      <div class="field-row">
-        <div class="field"><label>日付</label><input type="date" id="vf-date"></div>
-        <div class="field"><label>金額</label><input type="text" id="vf-amount"></div>
-      </div>
-      <div class="field-row">
-        <div class="field field-full"><label>店名 / 支払先</label><input type="text" id="vf-store"></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>カテゴリ</label>
-          <select id="vf-cat">
-            <option>🍽️ 食費</option><option>🚃 交通費</option><option>🏨 宿泊</option>
-            <option>📦 物品</option><option>🎉 接待</option><option>📄 その他</option>
-          </select>
-        </div>
-        <div class="field"><label>メモ</label><input type="text" id="vf-memo"></div>
-      </div>
-      <button class="btn btn-primary btn-full" style="margin-top:8px;" onclick="addExpense('voice')">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> 経費として登録
-      </button>
-    </div>
-  </div>
 
   <!-- 一覧タブ -->
   <div id="panel-list" class="panel">

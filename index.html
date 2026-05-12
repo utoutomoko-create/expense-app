@@ -155,7 +155,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
         <div style="font-size:12px;color:#666;margin-bottom:8px;">写真＋音声で再解析</div>
         <div style="display:flex;align-items:center;gap:8px;">
           <button id="supplement-mic-btn" onclick="toggleSupplementVoice()" class="btn" style="padding:7px 12px;font-size:13px;flex-shrink:0;">話す</button>
-          <div id="supplement-transcript" style="flex:1;font-size:13px;color:#aaa;min-height:32px;padding:6px 8px;background:#fff;border:1px solid #e0e0e0;border-radius:7px;">「田中部長との接待」など補足を話してください</div>
+          <div id="supplement-transcript" style="flex:1;font-size:13px;color:#aaa;min-height:32px;padding:6px 8px;background:#fff;border:1px solid #e0e0e0;border-radius:7px;">「日付を2月1日に」「金額を4000円に」「接待費として」など指示を話してください</div>
           <button id="supplement-analyze-btn" onclick="analyzeWithVoice()" class="btn btn-primary" style="display:none;padding:7px 12px;font-size:13px;flex-shrink:0;">再解析</button>
         </div>
       </div>
@@ -309,7 +309,7 @@ window.handleFile = async function(e) {
   document.getElementById('f-store').value = '';
   document.getElementById('f-cat').value = '🍽️ 食費';
   document.getElementById('f-memo').value = '';
-  document.getElementById('supplement-transcript').textContent = '「田中部長との接待」など補足を話してください';
+  document.getElementById('supplement-transcript').textContent = '「日付を2月1日に」「金額を4000円に」「接待費として」など指示を話してください';
   document.getElementById('supplement-transcript').style.color = '#aaa';
   document.getElementById('supplement-analyze-btn').style.display = 'none';
   currentImageBase64 = null;
@@ -451,29 +451,55 @@ window.toggleSupplementVoice = function() {
 };
 
 window.analyzeWithVoice = async function() {
-  if (!currentImageBase64) return;
   const voiceText = document.getElementById('supplement-transcript').textContent;
   const loading = document.getElementById('loading-receipt');
   loading.style.display = 'flex';
   document.getElementById('supplement-analyze-btn').style.display = 'none';
   const today = new Date().toISOString().split('T')[0];
-  const data = await callClaude([{ role: 'user', content: [
-    { type: 'image', source: { type: 'base64', media_type: currentImageType, data: currentImageBase64 } },
-    { type: 'text', text: `書類と音声補足「${voiceText}」を組み合わせてJSONのみ返答:\n{"date":"YYYY-MM-DD(不明なら${today})","amount":"¥数字","store":"店名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"音声補足を優先"}` }
-  ]}]);
+
+  const currentValues = {
+    date: document.getElementById('f-date').value,
+    amount: document.getElementById('f-amount').value,
+    store: document.getElementById('f-store').value,
+    category: document.getElementById('f-cat').value,
+    memo: document.getElementById('f-memo').value
+  };
+
+  const prompt = `あなたは経費精算アシスタントです。現在の入力内容に対してユーザーの音声指示を適用し、JSONのみで返答してください。
+
+現在の入力内容：
+- 日付: ${currentValues.date || '未入力'}
+- 金額: ${currentValues.amount || '未入力'}
+- 店名: ${currentValues.store || '未入力'}
+- カテゴリ: ${currentValues.category || '未入力'}
+- メモ: ${currentValues.memo || '未入力'}
+
+ユーザーの指示：「${voiceText}」
+
+ルール：
+- 指示された項目だけを変更し、指示のない項目は現在の値をそのまま維持すること
+- 「半分」「50%」などの表現は現在の金額を計算して適用すること
+- 日付は「2月1日」「昨日」「先週月曜」なども解釈して変換すること（今日は${today}）
+- 金額は"¥数字"形式（カンマなし）で返すこと
+- categoryは必ず 食費/交通費/宿泊/物品/接待/その他 のいずれかにすること
+
+{"date":"YYYY-MM-DD","amount":"¥数字","store":"店名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}`;
+
+  const data = await callClaude([{ role: 'user', content: prompt }]);
   loading.style.display = 'none';
   try {
     const parsed = JSON.parse(data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
-    document.getElementById('f-date').value = parsed.date || today;
-    document.getElementById('f-amount').value = parsed.amount || '';
-    document.getElementById('f-store').value = parsed.store || '';
+    if (parsed.date) document.getElementById('f-date').value = parsed.date;
+    if (parsed.amount) document.getElementById('f-amount').value = parsed.amount;
+    if (parsed.store) document.getElementById('f-store').value = parsed.store;
     const catMap = {'食費':'🍽️ 食費','交通費':'🚃 交通費','宿泊':'🏨 宿泊','物品':'📦 物品','接待':'🎉 接待','その他':'📄 その他'};
-    document.getElementById('f-cat').value = catMap[parsed.category] || '📄 その他';
-    document.getElementById('f-memo').value = parsed.memo || '';
+    if (parsed.category) document.getElementById('f-cat').value = catMap[parsed.category] || parsed.category;
+    if (parsed.memo !== undefined) document.getElementById('f-memo').value = parsed.memo;
   } catch(e) {}
-  document.getElementById('supplement-transcript').textContent = '「田中部長との接待」など補足を話してください';
+  document.getElementById('supplement-transcript').textContent = '「日付を2月1日に」「金額を4000円に」「接待費として」など指示を話してください';
   document.getElementById('supplement-transcript').style.color = '#aaa';
 };
+
 
 function updateList() {
   const now = new Date();

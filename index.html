@@ -389,8 +389,6 @@ window.handleFile = async function(e) {
   document.getElementById('result-card').classList.add('show');
 };
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycby6IH87IVpoGaDsmeYZBkhfovm4YhAKHpqYoBHsBRqyx5PgjMP_nX12ZIuzfH9D1AhHUQ/exec';
-
 window.addExpense = async function() {
   const exp = {
     id: Date.now(),
@@ -404,9 +402,8 @@ window.addExpense = async function() {
   // FirebaseとGoogleスプレッドシートに同時保存
   await Promise.all([
     push(expensesRef, exp),
-    fetch(GAS_URL, {
+    fetch('/api/gas', {
       method: 'POST',
-      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(exp)
     }).catch(() => {})

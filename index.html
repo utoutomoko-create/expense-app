@@ -77,6 +77,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 .empty-state { text-align: center; padding: 2.5rem; color: #aaa; font-size: 14px; background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; }
 #badge { display: none; font-size: 11px; background: #e8f0fe; color: #1a73e8; padding: 1px 6px; border-radius: 99px; margin-left: 4px; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -98,14 +99,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 
   <!-- レシートタブ -->
   <div id="panel-receipt" class="panel active">
-    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
-      <input type="file" id="file-input" accept="image/*" onchange="handleFile(event)">
-      <svg class="upload-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/><circle cx="17" cy="6" r="1"/></svg>
-      <p class="upload-label"><strong>クリックして選択</strong>またはドロップ</p>
-      <p class="upload-small">JPG・PNG対応 ／ レシートの写真でOK</p>
+    <input type="file" id="file-input" accept="image/*,application/pdf" onchange="handleFile(event)" style="display:none;">
+    <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handleFile(event)" style="display:none;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;">
+      <button class="btn btn-primary" onclick="document.getElementById('camera-input').click()" style="padding:14px;flex-direction:column;gap:6px;height:auto;">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        カメラで撮影
+      </button>
+      <button class="btn" onclick="document.getElementById('file-input').click()" style="padding:14px;flex-direction:column;gap:6px;height:auto;">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        写真 / PDF
+      </button>
     </div>
     <div class="preview-area" id="preview-area">
-      <img id="preview-img" class="preview-img" src="" alt="プレビュー">
+      <img id="preview-img" class="preview-img" src="" alt="プレビュー" style="display:none;">
+      <canvas id="preview-canvas" class="preview-img" style="display:none;max-height:200px;width:100%;object-fit:contain;"></canvas>
+      <div id="preview-pdf-label" style="display:none;font-size:13px;color:#666;text-align:center;padding:8px;background:#f5f5f5;border-radius:8px;margin-top:6px;"></div>
     </div>
     <div class="loading" id="loading-receipt" style="display:none;">
       <div class="spinner"></div> AIがレシートを読み取り中...
@@ -224,43 +233,96 @@ async function callClaude(messages) {
   return await res.json();
 }
 
+function compressImage(file, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
+    };
+    img.src = url;
+  });
+}
+
 async function handleFile(e) {
   const file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async (ev) => {
-    const base64 = ev.target.result.split(',')[1];
-    document.getElementById('preview-img').src = ev.target.result;
-    document.getElementById('preview-area').style.display = 'block';
-    document.getElementById('result-card').classList.remove('show');
-    document.getElementById('success-receipt').style.display = 'none';
-    const loading = document.getElementById('loading-receipt');
-    loading.style.display = 'flex';
-    const today = new Date().toISOString().split('T')[0];
-    const data = await callClaude([{
-      role: 'user',
-      content: [
-        { type: 'image', source: { type: 'base64', media_type: file.type || 'image/jpeg', data: base64 } },
-        { type: 'text', text: `このレシートから抽出してJSONのみで返答:\n{"date":"YYYY-MM-DD(不明なら${today})","amount":"¥数字","store":"店名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}` }
-      ]
-    }]);
-    loading.style.display = 'none';
+  const isPdf = file.type === 'application/pdf';
+  document.getElementById('preview-area').style.display = 'block';
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('success-receipt').style.display = 'none';
+  const loading = document.getElementById('loading-receipt');
+  loading.style.display = 'flex';
+
+  const today = new Date().toISOString().split('T')[0];
+  const prompt = `このレシート・領収書・請求書から抽出してJSONのみで返答:\n{"date":"YYYY-MM-DD(不明なら${today})","amount":"¥数字","store":"店名または会社名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}`;
+
+  let messageContent;
+
+  if (isPdf) {
+    // PDFはbase64でそのままAPIに送信、プレビューはPDF.jsでcanvasに描画
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8 = new Uint8Array(arrayBuffer);
+    const pdfBase64 = btoa(uint8.reduce((d, b) => d + String.fromCharCode(b), ''));
+
+    // PDFプレビュー（1ページ目をcanvasに描画）
     try {
-      const text = data.content.map(b => b.text || '').join('');
-      const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
-      document.getElementById('f-date').value = parsed.date || today;
-      document.getElementById('f-amount').value = parsed.amount || '';
-      document.getElementById('f-store').value = parsed.store || '';
-      const catMap = {'食費':'🍽️ 食費','交通費':'🚃 交通費','宿泊':'🏨 宿泊','物品':'📦 物品','接待':'🎉 接待','その他':'📄 その他'};
-      document.getElementById('f-cat').value = catMap[parsed.category] || '📄 その他';
-      document.getElementById('f-memo').value = parsed.memo || '';
-    } catch(e) {
-      document.getElementById('f-date').value = today;
-      document.getElementById('f-store').value = '（手動入力してください）';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pdfDoc = await pdfjsLib.getDocument({ data: uint8 }).promise;
+      const page = await pdfDoc.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.getElementById('preview-canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      canvas.style.display = 'block';
+      document.getElementById('preview-img').style.display = 'none';
+      document.getElementById('preview-pdf-label').style.display = 'block';
+      document.getElementById('preview-pdf-label').textContent = `📄 ${file.name}（${pdfDoc.numPages}ページ）`;
+    } catch(err) {
+      document.getElementById('preview-pdf-label').style.display = 'block';
+      document.getElementById('preview-pdf-label').textContent = `📄 ${file.name}`;
     }
-    document.getElementById('result-card').classList.add('show');
-  };
-  reader.readAsDataURL(file);
+
+    messageContent = [
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
+      { type: 'text', text: prompt }
+    ];
+  } else {
+    // 画像は圧縮して送信
+    const base64 = await compressImage(file, 1200, 0.7);
+    document.getElementById('preview-img').src = 'data:image/jpeg;base64,' + base64;
+    document.getElementById('preview-img').style.display = 'block';
+    document.getElementById('preview-canvas').style.display = 'none';
+    document.getElementById('preview-pdf-label').style.display = 'none';
+    messageContent = [
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
+      { type: 'text', text: prompt }
+    ];
+  }
+
+  const data = await callClaude([{ role: 'user', content: messageContent }]);
+  loading.style.display = 'none';
+  try {
+    const text = data.content.map(b => b.text || '').join('');
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    document.getElementById('f-date').value = parsed.date || today;
+    document.getElementById('f-amount').value = parsed.amount || '';
+    document.getElementById('f-store').value = parsed.store || '';
+    const catMap = {'食費':'🍽️ 食費','交通費':'🚃 交通費','宿泊':'🏨 宿泊','物品':'📦 物品','接待':'🎉 接待','その他':'📄 その他'};
+    document.getElementById('f-cat').value = catMap[parsed.category] || '📄 その他';
+    document.getElementById('f-memo').value = parsed.memo || '';
+  } catch(err) {
+    document.getElementById('f-date').value = today;
+    document.getElementById('f-store').value = '（手動入力してください）';
+  }
+  document.getElementById('result-card').classList.add('show');
 }
 
 function addExpense(from) {

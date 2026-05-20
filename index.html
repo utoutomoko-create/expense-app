@@ -23,12 +23,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; font-weight: 500; }
 .panel { display: none; }
 .panel.active { display: block; }
-.upload-zone { border: 1.5px dashed #ccc; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: background 0.15s; margin-bottom: 1rem; background: #fff; }
-.upload-zone:hover { background: #f9f9f9; }
-.upload-label { font-size: 14px; color: #666; }
-.upload-label strong { color: #1a73e8; }
-.upload-small { font-size: 12px; color: #aaa; margin-top: 4px; }
-.preview-area { display: none; margin-bottom: 1rem; }
 .preview-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; border: 1px solid #e0e0e0; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; border: 1px solid #ddd; background: #fff; cursor: pointer; color: #1a1a1a; font-family: inherit; transition: background 0.15s; }
 .btn:hover { background: #f5f5f5; }
@@ -38,25 +32,37 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 .btn-danger { background: #fff; color: #dc3545; border-color: #dc3545; }
 .btn-full { width: 100%; }
 .btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
-.card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; display: none; }
-.card.show { display: block; }
+.card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
 .card-title { font-size: 13px; font-weight: 500; color: #666; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
 .ai-badge { font-size: 10px; background: #e8f0fe; color: #1a73e8; padding: 2px 7px; border-radius: 99px; font-weight: 500; }
+.receipt-num { font-size: 10px; background: #f0f0f0; color: #666; padding: 2px 7px; border-radius: 99px; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .field { display: flex; flex-direction: column; gap: 4px; }
 .field label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
 .field input, .field select { font-size: 14px; padding: 7px 9px; border: 1px solid #e0e0e0; border-radius: 7px; background: #fafafa; color: #1a1a1a; font-family: inherit; width: 100%; }
 .field input:focus, .field select:focus { outline: none; border-color: #1a73e8; background: #fff; }
 .field-full { grid-column: 1 / -1; }
+.company-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
+.company-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #e0e0e0; background: #fafafa; cursor: pointer; font-size: 13px; font-weight: 500; font-family: inherit; color: #666; transition: all 0.15s; }
+.company-btn.active-karista { border-color: #1a73e8; background: #e8f0fe; color: #1a73e8; }
+.company-btn.active-glory { border-color: #e67700; background: #fff3e0; color: #e67700; }
 .loading { display: none; text-align: center; padding: 1rem; font-size: 13px; color: #666; align-items: center; justify-content: center; gap: 8px; }
 .spinner { width: 14px; height: 14px; border: 2px solid #e0e0e0; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .success-msg { display: none; text-align: center; padding: 0.75rem; font-size: 14px; color: #1e7e34; background: #d4edda; border-radius: 8px; margin-bottom: 1rem; }
-.summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+.summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
 .stat { background: #fff; border: 1px solid #e8e8e8; border-radius: 10px; padding: 12px; }
 .stat-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.stat-value { font-size: 20px; font-weight: 600; color: #1a1a1a; }
-.stat-value small { font-size: 13px; font-weight: 400; color: #666; }
+.stat-value { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+.stat-value small { font-size: 12px; font-weight: 400; color: #666; }
+.company-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.5rem; }
+.company-stat { border-radius: 10px; padding: 10px 12px; }
+.company-stat.karista { background: #e8f0fe; border: 1px solid #c5d8f8; }
+.company-stat.glory { background: #fff3e0; border: 1px solid #fcd9a0; }
+.company-stat-label { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+.karista .company-stat-label { color: #1a73e8; }
+.glory .company-stat-label { color: #e67700; }
+.company-stat-value { font-size: 16px; font-weight: 600; color: #1a1a1a; }
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .section-title { font-size: 15px; font-weight: 600; }
 .expense-list { display: flex; flex-direction: column; gap: 6px; }
@@ -65,16 +71,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 .expense-info { flex: 1; min-width: 0; }
 .expense-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .expense-meta { font-size: 12px; color: #888; }
+.expense-company { font-size: 10px; padding: 1px 6px; border-radius: 99px; font-weight: 600; flex-shrink: 0; }
+.company-karista { background: #e8f0fe; color: #1a73e8; }
+.company-glory { background: #fff3e0; color: #e67700; }
 .expense-amount { font-size: 15px; font-weight: 600; flex-shrink: 0; }
 .expense-actions { display: flex; gap: 4px; flex-shrink: 0; }
 .icon-btn { width: 28px; height: 28px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #ccc; }
-.icon-btn:hover.edit { background: #e8f0fe; color: #1a73e8; }
-.icon-btn:hover.del { background: #fff0f0; color: #dc3545; }
+.icon-btn:hover { background: #f0f0f0; color: #666; }
 .icon-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
 .empty-state { text-align: center; padding: 2.5rem; color: #aaa; font-size: 14px; background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; }
 #badge { display: none; font-size: 11px; background: #e8f0fe; color: #1a73e8; padding: 1px 6px; border-radius: 99px; margin-left: 4px; }
-
-/* 編集モーダル */
+.multi-results { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1rem; }
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
 .modal-overlay.show { display: flex; }
 .modal { background: #fff; border-radius: 16px; padding: 1.25rem; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
@@ -115,52 +122,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
         写真 / PDF
       </button>
     </div>
-    <div class="preview-area" id="preview-area">
+
+    <div id="preview-area" style="display:none;margin-bottom:1rem;">
       <img id="preview-img" class="preview-img" src="" alt="プレビュー" style="display:none;">
       <canvas id="preview-canvas" class="preview-img" style="display:none;max-height:200px;width:100%;object-fit:contain;"></canvas>
       <div id="preview-pdf-label" style="display:none;font-size:13px;color:#666;text-align:center;padding:8px;background:#f5f5f5;border-radius:8px;margin-top:6px;"></div>
     </div>
+
     <div class="loading" id="loading-receipt" style="display:none;">
       <div class="spinner"></div> AIが読み取り中...
     </div>
     <div class="success-msg" id="success-receipt">✓ 経費を登録しました</div>
-    <div class="card" id="result-card">
-      <div class="card-title">読取結果 <span class="ai-badge">Claude AI</span></div>
-      <div class="field-row">
-        <div class="field"><label>日付</label><input type="date" id="f-date"></div>
-        <div class="field"><label>金額</label><input type="text" id="f-amount" placeholder="¥0"></div>
+
+    <!-- 複数レシート結果エリア -->
+    <div id="multi-results-area" style="display:none;">
+      <div style="font-size:13px;color:#666;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+        <span id="receipt-count-msg"></span>
       </div>
-      <div class="field-row">
-        <div class="field field-full"><label>店名 / 支払先</label><input type="text" id="f-store"></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>カテゴリ</label>
-          <select id="f-cat">
-            <option>🍽️ 食費</option><option>🚃 交通費</option><option>🏨 宿泊</option>
-            <option>📦 物品</option><option>🎉 接待</option><option>📄 その他</option>
-          </select>
-        </div>
-        <div class="field">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <label style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;">メモ</label>
-            <button id="memo-mic-btn" onclick="toggleMemoVoice()" style="border:1px solid #e0e0e0;background:#fafafa;border-radius:6px;cursor:pointer;padding:3px 7px;display:flex;align-items:center;gap:3px;font-size:11px;color:#666;font-family:inherit;">
-              <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg>
-              音声入力
-            </button>
-          </div>
-          <input type="text" id="f-memo" placeholder="任意">
-        </div>
-      </div>
-      <div style="margin-top:10px;padding:10px;background:#f9f9f9;border-radius:8px;border:1px solid #e8e8e8;">
-        <div style="font-size:12px;color:#666;margin-bottom:8px;">写真＋音声で再解析</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button id="supplement-mic-btn" onclick="toggleSupplementVoice()" class="btn" style="padding:7px 12px;font-size:13px;flex-shrink:0;">話す</button>
-          <div id="supplement-transcript" style="flex:1;font-size:13px;color:#aaa;min-height:32px;padding:6px 8px;background:#fff;border:1px solid #e0e0e0;border-radius:7px;">「日付を2月1日に」「金額を4000円に」「接待費として」など指示を話してください</div>
-          <button id="supplement-analyze-btn" onclick="analyzeWithVoice()" class="btn btn-primary" style="display:none;padding:7px 12px;font-size:13px;flex-shrink:0;">再解析</button>
-        </div>
-      </div>
-      <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="addExpense()">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> 経費として登録
+      <div class="multi-results" id="multi-results"></div>
+      <button class="btn btn-primary btn-full" onclick="registerAll()" style="margin-top:4px;">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        すべて登録
       </button>
     </div>
   </div>
@@ -171,6 +153,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
       <div class="stat"><div class="stat-label">件数</div><div class="stat-value" id="stat-count">0<small>件</small></div></div>
       <div class="stat"><div class="stat-label">合計</div><div class="stat-value" id="stat-total">¥0</div></div>
       <div class="stat"><div class="stat-label">今月</div><div class="stat-value" id="stat-month">¥0</div></div>
+    </div>
+    <div class="company-summary">
+      <div class="company-stat karista">
+        <div class="company-stat-label">カリスタ</div>
+        <div class="company-stat-value" id="stat-karista">¥0</div>
+      </div>
+      <div class="company-stat glory">
+        <div class="company-stat-label">グローリー</div>
+        <div class="company-stat-value" id="stat-glory">¥0</div>
+      </div>
     </div>
     <div class="section-header">
       <span class="section-title">経費履歴</span>
@@ -186,6 +178,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
     <div class="modal-title">
       経費を編集
       <button class="modal-close" onclick="closeEditModal()">×</button>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">会社</div>
+      <div class="company-toggle">
+        <button class="company-btn" id="e-karista-btn" onclick="setEditCompany('カリスタ')">カリスタ</button>
+        <button class="company-btn" id="e-glory-btn" onclick="setEditCompany('グローリー')">グローリー</button>
+      </div>
+      <input type="hidden" id="e-company" value="カリスタ">
     </div>
     <div class="field-row">
       <div class="field"><label>日付</label><input type="date" id="e-date"></div>
@@ -218,7 +218,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAFrZe9evabVku5n4CjmwjsD5UsPWzmtKY",
@@ -233,34 +233,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const expensesRef = ref(db, 'expenses');
-
 const API_URL = '/api/claude';
+const GAS_PATH = '/api/gas';
+
 const catColors = {
-  '🍽️ 食費':'background:#fff8e6;',
-  '🚃 交通費':'background:#e8f0fe;',
-  '🏨 宿泊':'background:#e8f5e9;',
-  '🎉 接待':'background:#fce4ec;',
-  '📦 物品':'background:#f5f5f5;',
-  '📄 その他':'background:#f5f5f5;'
+  '🍽️ 食費':'background:#fff8e6;','🚃 交通費':'background:#e8f0fe;',
+  '🏨 宿泊':'background:#e8f5e9;','🎉 接待':'background:#fce4ec;',
+  '📦 物品':'background:#f5f5f5;','📄 その他':'background:#f5f5f5;'
 };
+const catMap = {'食費':'🍽️ 食費','交通費':'🚃 交通費','宿泊':'🏨 宿泊','物品':'📦 物品','接待':'🎉 接待','その他':'📄 その他'};
 
 let expenses = [];
 let currentImageBase64 = null;
-let currentImageType = 'image/jpeg';
 let editingId = null;
-let supplementRecognition = null;
-let isSupplementRecording = false;
+let pendingExpenses = []; // 複数レシート一時保存
 
-// Firebase リアルタイム同期
 onValue(expensesRef, (snapshot) => {
   const data = snapshot.val();
-  expenses = data ? Object.entries(data).map(([id, v]) => ({...v, firebaseId: id}))
-    .sort((a,b) => b.id - a.id) : [];
+  expenses = data ? Object.entries(data).map(([id, v]) => ({...v, firebaseId: id})).sort((a,b) => b.id - a.id) : [];
   updateList();
   updateBadge();
   document.getElementById('sync-status').textContent = '同期済み';
   document.getElementById('sync-status').className = 'sync-status sync-ok';
-}, (error) => {
+}, () => {
   document.getElementById('sync-status').textContent = '接続エラー';
   document.getElementById('sync-status').className = 'sync-status sync-err';
 });
@@ -273,11 +268,7 @@ window.switchTab = function(tab) {
 };
 
 async function callClaude(messages) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages })
-  });
+  const res = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({messages}) });
   return await res.json();
 }
 
@@ -288,8 +279,7 @@ function compressImage(file, maxWidth, quality) {
     img.onload = () => {
       const scale = Math.min(1, maxWidth / img.width);
       const canvas = document.createElement('canvas');
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
+      canvas.width = img.width * scale; canvas.height = img.height * scale;
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
       resolve(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
@@ -303,34 +293,27 @@ window.handleFile = async function(e) {
   if (!file) return;
   const isPdf = file.type === 'application/pdf';
 
-  // フォームと補足音声をリセット
-  document.getElementById('f-date').value = '';
-  document.getElementById('f-amount').value = '';
-  document.getElementById('f-store').value = '';
-  document.getElementById('f-cat').value = '🍽️ 食費';
-  document.getElementById('f-memo').value = '';
-  document.getElementById('supplement-transcript').textContent = '「日付を2月1日に」「金額を4000円に」「接待費として」など指示を話してください';
-  document.getElementById('supplement-transcript').style.color = '#aaa';
-  document.getElementById('supplement-analyze-btn').style.display = 'none';
-  currentImageBase64 = null;
-
   document.getElementById('preview-area').style.display = 'block';
-  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('multi-results-area').style.display = 'none';
   document.getElementById('success-receipt').style.display = 'none';
-  const loading = document.getElementById('loading-receipt');
-  loading.style.display = 'flex';
+  document.getElementById('loading-receipt').style.display = 'flex';
+  currentImageBase64 = null;
+  pendingExpenses = [];
 
   const today = new Date().toISOString().split('T')[0];
-  const prompt = `あなたは経費精算の専門家です。添付の書類を注意深く読み取り、以下のJSONのみを返答してください。説明文やマークダウンは不要です。
+  const prompt = `あなたは経費精算の専門家です。添付の画像に含まれるレシート・領収書・請求書を全て検出し、それぞれを個別に解析してください。
+
+重要：画像に複数のレシートが含まれている場合は、全て別々に抽出してください。
 
 抽出ルール：
-- date: 書類に記載された発行日・取引日・領収日を必ず読み取ること。日付の記載が全くない場合のみ"${today}"を使用すること。和暦（令和・R・平成・H）は西暦に変換すること。
-- amount: 合計金額・請求金額・領収金額を読み取ること。税込金額がある場合は税込を優先すること。"¥数字"形式（カンマなし）で返すこと。
-- store: 店名・会社名・屋号を正確に読み取ること。
-- category: 内容から最適なものを選択（食費/交通費/宿泊/物品/接待/その他）。
-- memo: 品目や用途など補足情報があれば簡潔に記載、なければ空文字。
+- date: 書類に記載された発行日・取引日を読み取ること。不明な場合のみ"${today}"を使用。和暦は西暦に変換。
+- amount: 税込合計金額を優先。"¥数字"形式（カンマなし）で返すこと。
+- store: 店名・会社名を正確に読み取ること。
+- category: 食費/交通費/宿泊/物品/接待/その他 から選択。
+- memo: 補足情報があれば簡潔に、なければ空文字。
 
-{"date":"YYYY-MM-DD","amount":"¥数字","store":"店名または会社名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}`;
+以下のJSON形式のみで返答（複数の場合は配列）：
+[{"date":"YYYY-MM-DD","amount":"¥数字","store":"店名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}]`;
 
   let messageContent;
   if (isPdf) {
@@ -354,8 +337,8 @@ window.handleFile = async function(e) {
       document.getElementById('preview-pdf-label').textContent = `📄 ${file.name}`;
     }
     messageContent = [
-      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
-      { type: 'text', text: prompt }
+      { type:'document', source:{ type:'base64', media_type:'application/pdf', data:pdfBase64 } },
+      { type:'text', text:prompt }
     ];
   } else {
     const base64 = await compressImage(file, 1200, 0.7);
@@ -364,56 +347,186 @@ window.handleFile = async function(e) {
     document.getElementById('preview-canvas').style.display = 'none';
     document.getElementById('preview-pdf-label').style.display = 'none';
     currentImageBase64 = base64;
-    currentImageType = 'image/jpeg';
     messageContent = [
-      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
-      { type: 'text', text: prompt }
+      { type:'image', source:{ type:'base64', media_type:'image/jpeg', data:base64 } },
+      { type:'text', text:prompt }
     ];
   }
 
-  const data = await callClaude([{ role: 'user', content: messageContent }]);
-  loading.style.display = 'none';
+  const data = await callClaude([{ role:'user', content:messageContent }]);
+  document.getElementById('loading-receipt').style.display = 'none';
+
   try {
-    const text = data.content.map(b => b.text || '').join('');
-    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
-    document.getElementById('f-date').value = parsed.date || today;
-    document.getElementById('f-amount').value = parsed.amount || '';
-    document.getElementById('f-store').value = parsed.store || '';
-    const catMap = {'食費':'🍽️ 食費','交通費':'🚃 交通費','宿泊':'🏨 宿泊','物品':'📦 物品','接待':'🎉 接待','その他':'📄 その他'};
-    document.getElementById('f-cat').value = catMap[parsed.category] || '📄 その他';
-    document.getElementById('f-memo').value = parsed.memo || '';
+    const text = data.content.map(b => b.text||'').join('');
+    let parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    if (!Array.isArray(parsed)) parsed = [parsed];
+    pendingExpenses = parsed;
+    renderMultiResults(parsed);
   } catch(err) {
-    document.getElementById('f-date').value = today;
-    document.getElementById('f-store').value = '（手動入力してください）';
+    pendingExpenses = [{ date:today, amount:'', store:'（手動入力）', category:'その他', memo:'' }];
+    renderMultiResults(pendingExpenses);
   }
-  document.getElementById('result-card').classList.add('show');
 };
 
-window.addExpense = async function() {
-  const exp = {
-    id: Date.now(),
-    date: document.getElementById('f-date').value,
-    amount: document.getElementById('f-amount').value,
-    store: document.getElementById('f-store').value,
-    cat: document.getElementById('f-cat').value,
-    memo: document.getElementById('f-memo').value
-  };
+function renderMultiResults(receipts) {
+  const area = document.getElementById('multi-results-area');
+  const container = document.getElementById('multi-results');
+  const countMsg = document.getElementById('receipt-count-msg');
+  countMsg.textContent = receipts.length > 1
+    ? `📋 ${receipts.length}枚のレシートを検出しました`
+    : '📋 レシートを読み取りました';
+  container.innerHTML = receipts.map((r, i) => `
+    <div class="card" style="margin-bottom:0;" id="receipt-card-${i}">
+      <div class="card-title">
+        ${receipts.length > 1 ? `<span class="receipt-num">レシート ${i+1}</span>` : ''}
+        読取結果 <span class="ai-badge">Claude AI</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">会社</div>
+        <div class="company-toggle">
+          <button class="company-btn active-karista" id="karista-btn-${i}" onclick="setCompany(${i},'カリスタ')">カリスタ</button>
+          <button class="company-btn" id="glory-btn-${i}" onclick="setCompany(${i},'グローリー')">グローリー</button>
+        </div>
+        <input type="hidden" id="company-${i}" value="カリスタ">
+      </div>
+      <div class="field-row">
+        <div class="field"><label>日付</label><input type="date" id="r-date-${i}" value="${r.date||''}"></div>
+        <div class="field"><label>金額</label><input type="text" id="r-amount-${i}" value="${r.amount||''}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field field-full"><label>店名 / 支払先</label><input type="text" id="r-store-${i}" value="${r.store||''}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>カテゴリ</label>
+          <select id="r-cat-${i}">
+            <option ${(catMap[r.category]||r.category)==='🍽️ 食費'?'selected':''}>🍽️ 食費</option>
+            <option ${(catMap[r.category]||r.category)==='🚃 交通費'?'selected':''}>🚃 交通費</option>
+            <option ${(catMap[r.category]||r.category)==='🏨 宿泊'?'selected':''}>🏨 宿泊</option>
+            <option ${(catMap[r.category]||r.category)==='📦 物品'?'selected':''}>📦 物品</option>
+            <option ${(catMap[r.category]||r.category)==='🎉 接待'?'selected':''}>🎉 接待</option>
+            <option ${(catMap[r.category]||r.category)==='📄 その他'||!(catMap[r.category]||r.category)?'selected':''}>📄 その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <label style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:0.5px;">メモ</label>
+            <button onclick="toggleMemoVoice(${i})" style="border:1px solid #e0e0e0;background:#fafafa;border-radius:6px;cursor:pointer;padding:3px 7px;display:flex;align-items:center;gap:3px;font-size:11px;color:#666;font-family:inherit;" id="memo-mic-${i}">
+              <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg>音声
+            </button>
+          </div>
+          <input type="text" id="r-memo-${i}" value="${r.memo||''}" placeholder="任意">
+        </div>
+      </div>
+      ${receipts.length > 1 ? `
+      <div style="margin-top:10px;padding:10px;background:#f9f9f9;border-radius:8px;border:1px solid #e8e8e8;">
+        <div style="font-size:12px;color:#666;margin-bottom:8px;">音声で修正</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button onclick="toggleSupVoice(${i})" class="btn" style="padding:6px 10px;font-size:12px;flex-shrink:0;" id="sup-mic-${i}">話す</button>
+          <div id="sup-transcript-${i}" style="flex:1;font-size:12px;color:#aaa;min-height:28px;padding:5px 8px;background:#fff;border:1px solid #e0e0e0;border-radius:7px;">「金額を4000円に」など指示</div>
+          <button onclick="applyVoice(${i})" class="btn btn-primary" style="display:none;padding:6px 10px;font-size:12px;flex-shrink:0;" id="sup-apply-${i}">修正</button>
+        </div>
+      </div>` : `
+      <div style="margin-top:10px;padding:10px;background:#f9f9f9;border-radius:8px;border:1px solid #e8e8e8;">
+        <div style="font-size:12px;color:#666;margin-bottom:8px;">音声で修正</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button onclick="toggleSupVoice(${i})" class="btn" style="padding:6px 10px;font-size:12px;flex-shrink:0;" id="sup-mic-${i}">話す</button>
+          <div id="sup-transcript-${i}" style="flex:1;font-size:12px;color:#aaa;min-height:28px;padding:5px 8px;background:#fff;border:1px solid #e0e0e0;border-radius:7px;">「日付を2月1日に」「金額を4000円に」など指示</div>
+          <button onclick="applyVoice(${i})" class="btn btn-primary" style="display:none;padding:6px 10px;font-size:12px;flex-shrink:0;" id="sup-apply-${i}">修正</button>
+        </div>
+      </div>`}
+    </div>`).join('');
+  area.style.display = 'block';
+}
 
-  // FirebaseとGoogleスプレッドシートに同時保存
+window.setCompany = function(i, company) {
+  document.getElementById(`company-${i}`).value = company;
+  const kb = document.getElementById(`karista-btn-${i}`);
+  const gb = document.getElementById(`glory-btn-${i}`);
+  kb.className = 'company-btn' + (company === 'カリスタ' ? ' active-karista' : '');
+  gb.className = 'company-btn' + (company === 'グローリー' ? ' active-glory' : '');
+};
+
+window.toggleMemoVoice = function(i) {
+  const btn = document.getElementById(`memo-mic-${i}`);
+  const input = document.getElementById(`r-memo-${i}`);
+  btn.style.color = '#dc3545'; btn.textContent = '録音中';
+  startSpeechRecognition(
+    (text) => { input.value = text; },
+    () => { btn.style.color = '#666'; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg>音声'; }
+  );
+};
+
+const supRecognitions = {};
+const supRecording = {};
+
+window.toggleSupVoice = function(i) {
+  if (supRecording[i]) { supRecognitions[i] && supRecognitions[i].stop(); return; }
+  const btn = document.getElementById(`sup-mic-${i}`);
+  const transcript = document.getElementById(`sup-transcript-${i}`);
+  btn.textContent = '停止'; btn.style.background = '#fff0f0'; btn.style.color = '#dc3545';
+  transcript.style.color = '#1a1a1a'; supRecording[i] = true;
+  supRecognitions[i] = startSpeechRecognition(
+    (text) => { transcript.textContent = text; },
+    () => {
+      supRecording[i] = false; btn.textContent = '話す'; btn.style.background = ''; btn.style.color = '';
+      if (transcript.textContent.length > 1) document.getElementById(`sup-apply-${i}`).style.display = 'block';
+    }
+  );
+};
+
+window.applyVoice = async function(i) {
+  const voiceText = document.getElementById(`sup-transcript-${i}`).textContent;
+  const today = new Date().toISOString().split('T')[0];
+  const current = {
+    date: document.getElementById(`r-date-${i}`).value,
+    amount: document.getElementById(`r-amount-${i}`).value,
+    store: document.getElementById(`r-store-${i}`).value,
+    category: document.getElementById(`r-cat-${i}`).value,
+    memo: document.getElementById(`r-memo-${i}`).value
+  };
+  document.getElementById(`sup-apply-${i}`).style.display = 'none';
+  document.getElementById('loading-receipt').style.display = 'flex';
+  const data = await callClaude([{ role:'user', content:`現在の入力内容に音声指示を適用してJSONのみで返答:\n現在: date=${current.date} amount=${current.amount} store=${current.store} category=${current.category} memo=${current.memo}\n指示:「${voiceText}」\n今日は${today}。指示された項目のみ変更。金額計算も対応。\n{"date":"YYYY-MM-DD","amount":"¥数字","store":"店名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}` }]);
+  document.getElementById('loading-receipt').style.display = 'none';
+  try {
+    const parsed = JSON.parse(data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
+    if (parsed.date) document.getElementById(`r-date-${i}`).value = parsed.date;
+    if (parsed.amount) document.getElementById(`r-amount-${i}`).value = parsed.amount;
+    if (parsed.store) document.getElementById(`r-store-${i}`).value = parsed.store;
+    if (parsed.category) document.getElementById(`r-cat-${i}`).value = catMap[parsed.category] || parsed.category;
+    if (parsed.memo !== undefined) document.getElementById(`r-memo-${i}`).value = parsed.memo;
+  } catch(e) {}
+  document.getElementById(`sup-transcript-${i}`).textContent = '「日付を2月1日に」「金額を4000円に」など指示';
+  document.getElementById(`sup-transcript-${i}`).style.color = '#aaa';
+};
+
+async function saveExpense(exp) {
   await Promise.all([
     push(expensesRef, exp),
-    fetch('/api/gas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(exp)
-    }).catch(() => {})
+    fetch(GAS_PATH, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(exp) }).catch(()=>{})
   ]);
+}
 
-  document.getElementById('result-card').classList.remove('show');
+window.registerAll = async function() {
+  const count = pendingExpenses.length;
+  for (let i = 0; i < count; i++) {
+    const exp = {
+      id: Date.now() + i,
+      date: document.getElementById(`r-date-${i}`).value,
+      amount: document.getElementById(`r-amount-${i}`).value,
+      store: document.getElementById(`r-store-${i}`).value,
+      cat: document.getElementById(`r-cat-${i}`).value,
+      memo: document.getElementById(`r-memo-${i}`).value,
+      company: document.getElementById(`company-${i}`).value
+    };
+    await saveExpense(exp);
+  }
+  document.getElementById('multi-results-area').style.display = 'none';
   document.getElementById('preview-area').style.display = 'none';
   document.getElementById('file-input').value = '';
   document.getElementById('camera-input').value = '';
   showSuccess('success-receipt');
+  pendingExpenses = [];
 };
 
 function showSuccess(id) {
@@ -434,95 +547,24 @@ function startSpeechRecognition(onResult, onEnd) {
   rec.start(); return rec;
 }
 
-window.toggleMemoVoice = function() {
-  const btn = document.getElementById('memo-mic-btn');
-  const input = document.getElementById('f-memo');
-  btn.style.color = '#dc3545'; btn.textContent = '録音中...';
-  startSpeechRecognition(
-    (text) => { input.value = text; },
-    () => { btn.style.color = '#666'; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3"/></svg> 音声入力'; }
-  );
-};
-
-window.toggleSupplementVoice = function() {
-  if (isSupplementRecording) { supplementRecognition && supplementRecognition.stop(); return; }
-  const btn = document.getElementById('supplement-mic-btn');
-  const transcript = document.getElementById('supplement-transcript');
-  const analyzeBtn = document.getElementById('supplement-analyze-btn');
-  btn.textContent = '停止'; btn.style.background = '#fff0f0'; btn.style.color = '#dc3545';
-  transcript.style.color = '#1a1a1a'; isSupplementRecording = true;
-  supplementRecognition = startSpeechRecognition(
-    (text) => { transcript.textContent = text; },
-    () => {
-      isSupplementRecording = false; btn.textContent = '話す'; btn.style.background = ''; btn.style.color = '';
-      if (transcript.textContent && transcript.textContent.length > 1) analyzeBtn.style.display = 'block';
-    }
-  );
-};
-
-window.analyzeWithVoice = async function() {
-  const voiceText = document.getElementById('supplement-transcript').textContent;
-  const loading = document.getElementById('loading-receipt');
-  loading.style.display = 'flex';
-  document.getElementById('supplement-analyze-btn').style.display = 'none';
-  const today = new Date().toISOString().split('T')[0];
-
-  const currentValues = {
-    date: document.getElementById('f-date').value,
-    amount: document.getElementById('f-amount').value,
-    store: document.getElementById('f-store').value,
-    category: document.getElementById('f-cat').value,
-    memo: document.getElementById('f-memo').value
-  };
-
-  const prompt = `あなたは経費精算アシスタントです。現在の入力内容に対してユーザーの音声指示を適用し、JSONのみで返答してください。
-
-現在の入力内容：
-- 日付: ${currentValues.date || '未入力'}
-- 金額: ${currentValues.amount || '未入力'}
-- 店名: ${currentValues.store || '未入力'}
-- カテゴリ: ${currentValues.category || '未入力'}
-- メモ: ${currentValues.memo || '未入力'}
-
-ユーザーの指示：「${voiceText}」
-
-ルール：
-- 指示された項目だけを変更し、指示のない項目は現在の値をそのまま維持すること
-- 「半分」「50%」などの表現は現在の金額を計算して適用すること
-- 日付は「2月1日」「昨日」「先週月曜」なども解釈して変換すること（今日は${today}）
-- 金額は"¥数字"形式（カンマなし）で返すこと
-- categoryは必ず 食費/交通費/宿泊/物品/接待/その他 のいずれかにすること
-
-{"date":"YYYY-MM-DD","amount":"¥数字","store":"店名","category":"食費/交通費/宿泊/物品/接待/その他","memo":"メモ"}`;
-
-  const data = await callClaude([{ role: 'user', content: prompt }]);
-  loading.style.display = 'none';
-  try {
-    const parsed = JSON.parse(data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
-    if (parsed.date) document.getElementById('f-date').value = parsed.date;
-    if (parsed.amount) document.getElementById('f-amount').value = parsed.amount;
-    if (parsed.store) document.getElementById('f-store').value = parsed.store;
-    const catMap = {'食費':'🍽️ 食費','交通費':'🚃 交通費','宿泊':'🏨 宿泊','物品':'📦 物品','接待':'🎉 接待','その他':'📄 その他'};
-    if (parsed.category) document.getElementById('f-cat').value = catMap[parsed.category] || parsed.category;
-    if (parsed.memo !== undefined) document.getElementById('f-memo').value = parsed.memo;
-  } catch(e) {}
-  document.getElementById('supplement-transcript').textContent = '「日付を2月1日に」「金額を4000円に」「接待費として」など指示を話してください';
-  document.getElementById('supplement-transcript').style.color = '#aaa';
-};
-
-
 function updateList() {
   const now = new Date();
   const thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-  let total = 0, monthTotal = 0;
+  let total = 0, monthTotal = 0, karistaTotal = 0, gloryTotal = 0;
   expenses.forEach(e => {
     const n = parseInt((e.amount||'').replace(/[^0-9]/g,'')) || 0;
     total += n;
     if (e.date && e.date.startsWith(thisMonth)) monthTotal += n;
+    if (e.company === 'カリスタ') karistaTotal += n;
+    else if (e.company === 'グローリー') gloryTotal += n;
+    else karistaTotal += n; // 未設定はカリスタ扱い
   });
   document.getElementById('stat-count').innerHTML = expenses.length + '<small>件</small>';
   document.getElementById('stat-total').textContent = '¥' + total.toLocaleString();
   document.getElementById('stat-month').textContent = '¥' + monthTotal.toLocaleString();
+  document.getElementById('stat-karista').textContent = '¥' + karistaTotal.toLocaleString();
+  document.getElementById('stat-glory').textContent = '¥' + gloryTotal.toLocaleString();
+
   const list = document.getElementById('expense-list');
   if (!expenses.length) { list.innerHTML = '<div class="empty-state">経費がまだ登録されていません</div>'; return; }
   list.innerHTML = expenses.map(e => `
@@ -532,12 +574,13 @@ function updateList() {
         <div class="expense-name">${e.store||'（店名なし）'}</div>
         <div class="expense-meta">${e.date||''} · ${e.cat||''}${e.memo?' · '+e.memo:''}</div>
       </div>
+      <span class="expense-company ${e.company==='グローリー'?'company-glory':'company-karista'}">${e.company||'カリスタ'}</span>
       <div class="expense-amount">${e.amount||''}</div>
       <div class="expense-actions">
-        <button class="icon-btn edit" onclick="openEditModal('${e.firebaseId}')" title="編集">
+        <button class="icon-btn" onclick="openEditModal('${e.firebaseId}')">
           <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
-        <button class="icon-btn del" onclick="deleteExpense('${e.firebaseId}')" title="削除">
+        <button class="icon-btn" onclick="deleteExpense('${e.firebaseId}')">
           <svg viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></svg>
         </button>
       </div>
@@ -553,7 +596,14 @@ window.openEditModal = function(firebaseId) {
   document.getElementById('e-store').value = e.store || '';
   document.getElementById('e-cat').value = e.cat || '📄 その他';
   document.getElementById('e-memo').value = e.memo || '';
+  setEditCompany(e.company || 'カリスタ');
   document.getElementById('edit-modal').classList.add('show');
+};
+
+window.setEditCompany = function(company) {
+  document.getElementById('e-company').value = company;
+  document.getElementById('e-karista-btn').className = 'company-btn' + (company === 'カリスタ' ? ' active-karista' : '');
+  document.getElementById('e-glory-btn').className = 'company-btn' + (company === 'グローリー' ? ' active-glory' : '');
 };
 
 window.closeEditModal = function() {
@@ -568,7 +618,8 @@ window.saveEdit = async function() {
     amount: document.getElementById('e-amount').value,
     store: document.getElementById('e-store').value,
     cat: document.getElementById('e-cat').value,
-    memo: document.getElementById('e-memo').value
+    memo: document.getElementById('e-memo').value,
+    company: document.getElementById('e-company').value
   });
   closeEditModal();
 };
@@ -591,8 +642,8 @@ function updateBadge() {
 
 window.exportCSV = function() {
   if (!expenses.length) return;
-  const rows = [['日付','店名','金額','カテゴリ','メモ']];
-  expenses.forEach(e => rows.push([e.date, e.store, e.amount, e.cat, e.memo]));
+  const rows = [['日付','店名','金額','カテゴリ','会社','メモ']];
+  expenses.forEach(e => rows.push([e.date, e.store, e.amount, e.cat, e.company||'カリスタ', e.memo]));
   const csv = rows.map(r => r.map(c => '"'+(c||'')+'"').join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));

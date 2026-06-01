@@ -2,12 +2,13 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>経費レシート読取アプリ</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; min-height: -webkit-fill-available; -webkit-text-size-adjust: 100%; }
 .app { max-width: 640px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
 .header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
 .header-icon { width: 40px; height: 40px; border-radius: 10px; background: #e8f0fe; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -39,7 +40,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .field { display: flex; flex-direction: column; gap: 4px; }
 .field label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
-.field input, .field select { font-size: 14px; padding: 7px 9px; border: 1px solid #e0e0e0; border-radius: 7px; background: #fafafa; color: #1a1a1a; font-family: inherit; width: 100%; }
+.field input, .field select { font-size: 16px; padding: 7px 9px; border: 1px solid #e0e0e0; border-radius: 7px; background: #fafafa; color: #1a1a1a; font-family: inherit; width: 100%; -webkit-appearance: none; appearance: none; }
+.field select { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: right 9px center; padding-right: 28px; }
 .field input:focus, .field select:focus { outline: none; border-color: #1a73e8; background: #fff; }
 .field-full { grid-column: 1 / -1; }
 .company-toggle { display: flex; gap: 6px; }
@@ -85,7 +87,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
 .multi-results { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1rem; }
 .meeting-fields { display: none; padding: 10px; background: #f9f9f9; border-radius: 8px; border: 1px solid #e8e8e8; margin-bottom: 8px; }
 .meeting-fields.show { display: block; }
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay { display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
 .modal-overlay.show { display: flex; }
 .modal { background: #fff; border-radius: 16px; padding: 1.25rem; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
 .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }

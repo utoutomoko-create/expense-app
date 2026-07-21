@@ -121,6 +121,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
         <button class="company-btn" id="batch-glory" onclick="setBatchCompany('グローリー')">グローリー</button>
       </div>
       <input type="hidden" id="batch-company" value="カリスタ">
+
+      <div class="batch-company-label" style="margin-top:16px;">読み取りモード</div>
+      <div class="company-toggle">
+        <button class="company-btn active-karista" id="mode-single" onclick="setReadMode('single')">1枚ずつ</button>
+        <button class="company-btn" id="mode-multi" onclick="setReadMode('multi')">まとめて（複数枚）</button>
+      </div>
+      <input type="hidden" id="read-mode" value="single">
+      <div style="font-size:11px;color:#999;margin-top:6px;" id="mode-hint">レシート1枚を撮影して読み取ります</div>
     </div>
 
     <input type="file" id="file-input" accept="image/*,application/pdf" onchange="handleFile(event)" style="display:none;">
@@ -143,7 +151,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Goth
     </div>
 
     <div class="loading" id="loading-receipt" style="display:none;">
-      <div class="spinner"></div> AIが読み取り中...
+      <div class="spinner"></div> <span id="loading-text">AIが読み取り中...</span>
     </div>
     <div class="success-msg" id="success-receipt">✓ 経費を登録しました</div>
 
@@ -271,9 +279,68 @@ window.setBatchCompany = function(company) {
   pendingExpenses.forEach((_, i) => { if (document.getElementById(`company-${i}`)) setCompany(i, company); });
 };
 
-async function callClaude(messages) {
-  const res = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({messages}) });
+window.setReadMode = function(mode) {
+  document.getElementById('read-mode').value = mode;
+  document.getElementById('mode-single').className = 'company-btn' + (mode === 'single' ? ' active-karista' : '');
+  document.getElementById('mode-multi').className = 'company-btn' + (mode === 'multi' ? ' active-glory' : '');
+  document.getElementById('mode-hint').textContent = mode === 'multi'
+    ? 'レシートを重ならないように並べて1枚で撮影してください（最大10枚）'
+    : 'レシート1枚を撮影して読み取ります';
+};
+
+async function callClaude(messages, maxTokens) {
+  const res = await fetch(API_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ messages, max_tokens: maxTokens || 8000 })
+  });
   return await res.json();
+}
+
+// 返答が途中で切れても、完成しているレシート分だけを救い出す
+function parseReceiptsSafely(text) {
+  const clean = text.replace(/```json|```/g, '').trim();
+  try {
+    const parsed = JSON.parse(clean);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {
+    const objects = clean.match(/\{[^{}]*\}/g) || [];
+    const results = [];
+    objects.forEach(o => { try { results.push(JSON.parse(o)); } catch (err) {} });
+    return results;
+  }
+}
+
+// 画像を格子状に分割し、各タイルを高解像度のまま取り出す
+function splitImage(file, cols, rows, overlap, maxTileWidth, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const tiles = [];
+      const tileW = img.width / cols;
+      const tileH = img.height / rows;
+      const padX = tileW * overlap;
+      const padY = tileH * overlap;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const sx = Math.max(0, c * tileW - padX);
+          const sy = Math.max(0, r * tileH - padY);
+          const sw = Math.min(img.width - sx, tileW + padX * 2);
+          const sh = Math.min(img.height - sy, tileH + padY * 2);
+          const scale = Math.min(1, maxTileWidth / sw);
+          const canvas = document.createElement('canvas');
+          canvas.width = sw * scale;
+          canvas.height = sh * scale;
+          canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+          tiles.push(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
+        }
+      }
+      URL.revokeObjectURL(url);
+      resolve(tiles);
+    };
+    img.src = url;
+  });
 }
 
 function compressImage(file, maxWidth, quality) {
@@ -303,21 +370,25 @@ window.handleFile = async function(e) {
   pendingExpenses = [];
 
   const today = new Date().toISOString().split('T')[0];
-  const prompt = `あなたは経費精算の専門家です。添付画像内のレシート・領収書を全て検出し個別に解析してください。
-
-重要：画像には最大10枚のレシートが含まれる可能性があります。見落とさず全て検出してください。重なっていても端が見えていれば検出を試みてください。
-
-抽出ルール：
+  const mode = document.getElementById('read-mode').value;
+  const rules = `抽出ルール：
 - date: 記載日付を読み取る。不明時のみ"${today}"。和暦は西暦に変換。
 - amount: 税込合計を優先。"¥数字"形式（カンマなし）。
 - store: 店名・会社名を正確に。
 - category: 内容から最も適切なものを次の中から選択：${CATEGORIES.join(' / ')}。飲食店・カフェ・居酒屋は「会議費・交際費」、電車・バス・タクシーは「交通費」、ホテルは「宿泊費」が目安。判断できない場合は「その他」。
 - memo: 補足あれば簡潔に、なければ空文字。
 
-JSON配列のみで返答：
+JSON配列のみで返答（説明文やマークダウンは不要）：
 [{"date":"YYYY-MM-DD","amount":"¥数字","store":"店名","category":"${CATEGORIES.join('/')}","memo":"メモ"}]`;
 
+  const singlePrompt = `あなたは経費精算の専門家です。添付画像内のレシート・領収書を全て検出し個別に解析してください。
+
+重要：画像には複数のレシートが含まれる可能性があります。見落とさず全て検出してください。
+
+${rules}`;
+
   let messageContent;
+
   if (isPdf) {
     const arrayBuffer = await file.arrayBuffer();
     const uint8 = new Uint8Array(arrayBuffer);
@@ -333,30 +404,70 @@ JSON配列のみで返答：
       canvas.style.display = 'block';
       document.getElementById('preview-img').style.display = 'none';
       document.getElementById('preview-pdf-label').style.display = 'block';
-      document.getElementById('preview-pdf-label').textContent = `📄 ${file.name}（${pdfDoc.numPages}ページ）`;
+      document.getElementById('preview-pdf-label').textContent = `\ud83d\udcc4 ${file.name}（${pdfDoc.numPages}ページ）`;
     } catch(err) {
       document.getElementById('preview-pdf-label').style.display = 'block';
-      document.getElementById('preview-pdf-label').textContent = `📄 ${file.name}`;
+      document.getElementById('preview-pdf-label').textContent = `\ud83d\udcc4 ${file.name}`;
     }
-    messageContent = [{ type:'document', source:{ type:'base64', media_type:'application/pdf', data:pdfBase64 } }, { type:'text', text:prompt }];
+    messageContent = [{ type:'document', source:{ type:'base64', media_type:'application/pdf', data:pdfBase64 } }, { type:'text', text:singlePrompt }];
+
+  } else if (mode === 'multi') {
+    // 全体像 + 4分割タイル（重なりあり）を送り、解像度を保ったまま解析する
+    const overview = await compressImage(file, 1400, 0.8);
+    const tiles = await splitImage(file, 2, 2, 0.12, 1400, 0.85);
+    document.getElementById('preview-img').src = 'data:image/jpeg;base64,' + overview;
+    document.getElementById('preview-img').style.display = 'block';
+    document.getElementById('preview-canvas').style.display = 'none';
+    document.getElementById('preview-pdf-label').style.display = 'none';
+    document.getElementById('loading-text').textContent = 'AIが読み取り中...（複数枚のため少し時間がかかります）';
+
+    const multiPrompt = `あなたは経費精算の専門家です。レシートを並べて撮影した写真を解析します。
+
+画像1は写真の全体像です。画像2〜5は同じ写真を左上・右上・左下・右下の4つに分割し、文字を読みやすく拡大したものです。分割部分は少し重ねてあります。
+
+手順：
+1. まず画像1でレシートが何枚写っているか数える。
+2. 画像2〜5の拡大画像を使って、各レシートの日付・金額・店名を正確に読み取る。
+3. 分割の重なりにより同じレシートが複数の画像に写っている場合は、必ず1件にまとめる（店名・金額・日付が一致するものは同一のレシート）。
+4. 一部しか写っていない断片は、他の画像で全体が読めるならそちらを優先する。
+
+最終的に、実際に存在するレシートの枚数と同じ件数のJSONを返してください。
+
+${rules}`;
+
+    messageContent = [
+      { type:'text', text:'画像1：写真の全体像' },
+      { type:'image', source:{ type:'base64', media_type:'image/jpeg', data:overview } },
+      { type:'text', text:'画像2：左上の拡大' },
+      { type:'image', source:{ type:'base64', media_type:'image/jpeg', data:tiles[0] } },
+      { type:'text', text:'画像3：右上の拡大' },
+      { type:'image', source:{ type:'base64', media_type:'image/jpeg', data:tiles[1] } },
+      { type:'text', text:'画像4：左下の拡大' },
+      { type:'image', source:{ type:'base64', media_type:'image/jpeg', data:tiles[2] } },
+      { type:'text', text:'画像5：右下の拡大' },
+      { type:'image', source:{ type:'base64', media_type:'image/jpeg', data:tiles[3] } },
+      { type:'text', text:multiPrompt }
+    ];
+
   } else {
     const base64 = await compressImage(file, 2000, 0.8);
     document.getElementById('preview-img').src = 'data:image/jpeg;base64,' + base64;
     document.getElementById('preview-img').style.display = 'block';
     document.getElementById('preview-canvas').style.display = 'none';
     document.getElementById('preview-pdf-label').style.display = 'none';
-    messageContent = [{ type:'image', source:{ type:'base64', media_type:'image/jpeg', data:base64 } }, { type:'text', text:prompt }];
+    messageContent = [{ type:'image', source:{ type:'base64', media_type:'image/jpeg', data:base64 } }, { type:'text', text:singlePrompt }];
   }
 
-  const data = await callClaude([{ role:'user', content:messageContent }]);
+  const data = await callClaude([{ role:'user', content:messageContent }], 8000);
   document.getElementById('loading-receipt').style.display = 'none';
-  try {
-    const text = data.content.map(b => b.text||'').join('');
-    let parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
-    if (!Array.isArray(parsed)) parsed = [parsed];
+  document.getElementById('loading-text').textContent = 'AIが読み取り中...';
+
+  const text = (data.content || []).map(b => b.text || '').join('');
+  const parsed = parseReceiptsSafely(text);
+  if (parsed.length) {
     pendingExpenses = parsed;
     renderMultiResults(parsed);
-  } catch(err) {
+  } else {
     pendingExpenses = [{ date:today, amount:'', store:'（手動入力）', category:'その他', memo:'' }];
     renderMultiResults(pendingExpenses);
   }
